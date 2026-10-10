@@ -1,0 +1,6 @@
+{
+  "name": "IEQ VILA ANDREZA - Gestão de Igreja & Ministérios",
+  "description": "Sistema completo de gestão eclesiástica para a Igreja do Evangelho Quadrangular - Vila Andreza: devocional bíblico, agenda com alerta de novidades, ministério de louvor com escala inteligente, cifras com mudança de tom, projeção de letras, cadastro de membros, liderança, visitantes e integração com WhatsApp.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
