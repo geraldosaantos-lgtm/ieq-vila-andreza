@@ -26,7 +26,6 @@ import { WorshipMinistry } from './components/WorshipMinistry';
 import { MembersAndLeadership } from './components/MembersAndLeadership';
 import { PastorDashboard } from './components/PastorDashboard';
 import { CompanySettingsModal } from './components/CompanySettingsModal';
-import { SupabaseAndSecurityModal } from './components/SupabaseAndSecurityModal';
 import { IEQFourColorBar } from './components/IEQLogo';
 
 export function App() {
@@ -34,7 +33,6 @@ export function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('home');
   const [viewedAgendaIds, setViewedAgendaIds] = useState<string[]>(() => getViewedAgendaIds());
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
-  const [isSupabaseModalOpen, setIsSupabaseModalOpen] = useState<boolean>(false);
 
   useEffect(() => {
     fetchChurchStore().then((data) => {
@@ -259,7 +257,6 @@ export function App() {
         onSelectTab={handleSelectTab}
         unviewedAgendaCount={unviewedAgendaCount}
         onOpenChurchSettings={() => setIsSettingsModalOpen(true)}
-        onOpenSupabaseModal={() => setIsSupabaseModalOpen(true)}
       />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-8">
@@ -318,6 +315,9 @@ export function App() {
             leadership={store.leadership}
             visitors={store.visitors}
             serviceRecords={store.serviceRecords}
+            worshipMusicians={store.worshipMusicians}
+            worshipScales={store.worshipScales}
+            agenda={store.agenda}
             onAddVisitor={handleAddVisitor}
             onUpdateVisitorStatus={handleUpdateVisitorStatus}
             onDeleteVisitor={handleDeleteVisitor}
@@ -341,13 +341,6 @@ export function App() {
             >
               Configurar Igreja & Dados
             </button>
-            <button
-              type="button"
-              onClick={() => setIsSupabaseModalOpen(true)}
-              className="hover:text-slate-900 underline cursor-pointer"
-            >
-              Supabase, GitHub & Vercel
-            </button>
           </div>
         </div>
       </footer>
@@ -366,12 +359,6 @@ export function App() {
           setStore(demo);
           setViewedAgendaIds([]);
         }}
-        onOpenSupabaseModal={() => setIsSupabaseModalOpen(true)}
-      />
-
-      <SupabaseAndSecurityModal
-        isOpen={isSupabaseModalOpen}
-        onClose={() => setIsSupabaseModalOpen(false)}
       />
     </div>
   );

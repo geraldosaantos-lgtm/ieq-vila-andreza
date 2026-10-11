@@ -6,7 +6,6 @@ import {
   Trash2,
   RotateCcw,
   AlertTriangle,
-  Database,
   Settings,
 } from 'lucide-react';
 import type { ChurchSettings } from '../types';
@@ -19,7 +18,6 @@ interface CompanySettingsModalProps {
   onSaveSettings: (settings: ChurchSettings) => void;
   onResetAllData: () => Promise<void>;
   onLoadDemoData: () => Promise<void>;
-  onOpenSupabaseModal: () => void;
 }
 
 export const CompanySettingsModal: React.FC<CompanySettingsModalProps> = ({
@@ -29,7 +27,6 @@ export const CompanySettingsModal: React.FC<CompanySettingsModalProps> = ({
   onSaveSettings,
   onResetAllData,
   onLoadDemoData,
-  onOpenSupabaseModal,
 }) => {
   const [formData, setFormData] = useState<ChurchSettings>(churchSettings);
   const [confirmReset, setConfirmReset] = useState<boolean>(false);
@@ -71,10 +68,10 @@ export const CompanySettingsModal: React.FC<CompanySettingsModalProps> = ({
             <Settings className="w-5 h-5 text-red-700" />
             <div>
               <h2 className="text-lg font-extrabold text-slate-900">
-                Configurações da Igreja, Logo & Banco de Dados
+                Configurações da Igreja & Identidade Visual
               </h2>
               <p className="text-xs text-slate-500">
-                Personalize nome, logo, pastor titular, limpeza de dados ou acesse o Supabase/GitHub/Vercel.
+                Personalize nome, logotipo, pastor titular e gerenciamento de dados da igreja.
               </p>
             </div>
           </div>
@@ -89,29 +86,6 @@ export const CompanySettingsModal: React.FC<CompanySettingsModalProps> = ({
 
         {/* Body */}
         <div className="p-6 overflow-y-auto space-y-6 text-xs">
-          {/* Atalho para Configurações de Nuvem (Supabase, GitHub e Vercel) */}
-          <div className="p-4 bg-slate-900 text-white rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="space-y-0.5">
-              <div className="font-bold text-sm flex items-center gap-2">
-                <Database className="w-4 h-4 text-amber-400" />
-                <span>Integração Supabase, GitHub & Vercel</span>
-              </div>
-              <p className="text-slate-300 text-[11px]">
-                Configure suas chaves na nuvem, copie o script SQL das tabelas da igreja ou veja o guia de deploy.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => {
-                onClose();
-                onOpenSupabaseModal();
-              }}
-              className="px-3.5 py-2 text-xs font-bold text-slate-950 bg-amber-400 hover:bg-amber-300 rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer"
-            >
-              Abrir Painel Supabase & GitHub
-            </button>
-          </div>
-
           <form id="church-settings-form" onSubmit={handleSubmit} className="space-y-4">
             {/* Logo & Identidade Quadrangular */}
             <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex flex-col sm:flex-row items-start sm:items-center gap-4">
