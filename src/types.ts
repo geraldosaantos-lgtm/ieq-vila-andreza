@@ -178,6 +178,109 @@ export interface ServiceAttendanceRecord {
   createdAt: string;
 }
 
+// ===================== SOCIAL MEDIA AI AGENT TYPES =====================
+export type SocialPlatform = 'facebook' | 'instagram' | 'tiktok';
+
+export type SocialPostStatus =
+  | 'aguardando_aprovacao'
+  | 'aprovado_agendado'
+  | 'publicado'
+  | 'pausado';
+
+export interface SocialMediaAttachment {
+  id: string;
+  type: 'photo' | 'video';
+  url: string;
+  thumbnailUrl?: string;
+  fileName: string;
+  fileSizeLabel?: string;
+  mimeType?: string;
+}
+
+export interface SocialPlatformCopy {
+  instagram: {
+    caption: string;
+    hashtags: string[];
+    formatSuggestion: string;
+    bestTime: string;
+    status: 'pendente' | 'agendado' | 'publicado';
+    publishedAt?: string;
+  };
+  facebook: {
+    postText: string;
+    callToAction: string;
+    hashtags: string[];
+    bestTime: string;
+    status: 'pendente' | 'agendado' | 'publicado';
+    publishedAt?: string;
+  };
+  tiktok: {
+    caption: string;
+    videoScriptHook: string;
+    soundSuggestion: string;
+    hashtags: string[];
+    bestTime: string;
+    status: 'pendente' | 'agendado' | 'publicado';
+    publishedAt?: string;
+  };
+}
+
+export interface SocialPostItem {
+  id: string;
+  title: string;
+  contextPrompt: string;
+  tone: string;
+  pillar: QuadrangularPillar;
+  media: SocialMediaAttachment[];
+  visualAnalysis: string;
+  suggestedHook: string;
+  bibleReference: string;
+  platforms: SocialPlatform[];
+  content: SocialPlatformCopy;
+  status: SocialPostStatus;
+  scheduledSlotLabel?: string;
+  scheduledFor: string; // YYYY-MM-DDTHH:mm
+  recurrenceRule: 'unico' | 'semanal' | 'diario';
+  approvedBy?: string;
+  approvedAt?: string;
+  publishedAt?: string;
+  createdAt: string;
+}
+
+export interface SocialScheduleSlot {
+  id: string;
+  dayOfWeek: string;
+  time: string;
+  label: string;
+  platforms: SocialPlatform[];
+  active: boolean;
+}
+
+export interface SocialAgentConfig {
+  agentName: string;
+  autoPublishApproved: boolean;
+  defaultTone: string;
+  connectedAccounts: {
+    facebook: {
+      pageName: string;
+      handle: string;
+      connected: boolean;
+      autoPost: boolean;
+    };
+    instagram: {
+      handle: string;
+      connected: boolean;
+      autoPost: boolean;
+    };
+    tiktok: {
+      handle: string;
+      connected: boolean;
+      autoPost: boolean;
+    };
+  };
+  predefinedSchedule: SocialScheduleSlot[];
+}
+
 export interface ChurchStoreData {
   church: ChurchSettings;
   agenda: AgendaEvent[];
@@ -188,6 +291,8 @@ export interface ChurchStoreData {
   leadership: LeadershipMember[];
   visitors: ChurchVisitor[];
   serviceRecords: ServiceAttendanceRecord[];
+  socialPosts?: SocialPostItem[];
+  socialAgentConfig?: SocialAgentConfig;
   supabaseConfig?: {
     url: string;
     anonKey: string;

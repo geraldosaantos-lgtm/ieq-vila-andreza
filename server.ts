@@ -2,7 +2,8 @@ import express, { Request, Response } from 'express';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import type { ChurchStoreData } from './src/types.js';
+import { GoogleGenAI } from '@google/genai';
+import type { ChurchStoreData, SocialPostItem, QuadrangularPillar, SocialPlatform } from './src/types.js';
 import {
   DEFAULT_CHURCH_SETTINGS,
   INITIAL_AGENDA_EVENTS,
@@ -13,6 +14,8 @@ import {
   DEMO_LEADERSHIP,
   DEMO_VISITORS,
   DEMO_SERVICE_RECORDS,
+  DEFAULT_SOCIAL_AGENT_CONFIG,
+  DEMO_SOCIAL_POSTS,
 } from './src/lib/initialData.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -21,7 +24,17 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json({ limit: '5mb' }));
+app.use(express.json({ limit: '10mb' }));
+
+// Initialize Google GenAI client (Gemini 2.5 Flash as standard per guidelines)
+const ai = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY,
+  httpOptions: {
+    headers: {
+      'User-Agent': 'aistudio-build',
+    },
+  },
+});
 
 // Data file path
 const DATA_DIR = path.resolve(__dirname, 'data');
@@ -41,6 +54,8 @@ let store: ChurchStoreData = {
   leadership: DEMO_LEADERSHIP,
   visitors: DEMO_VISITORS,
   serviceRecords: DEMO_SERVICE_RECORDS,
+  socialPosts: DEMO_SOCIAL_POSTS,
+  socialAgentConfig: DEFAULT_SOCIAL_AGENT_CONFIG,
   supabaseConfig: {
     url: '',
     anonKey: '',
@@ -54,7 +69,15 @@ function loadStore() {
       const raw = fs.readFileSync(DATA_FILE, 'utf-8');
       const parsed = JSON.parse(raw);
       if (parsed && parsed.church) {
-        store = { ...store, ...parsed };
+        store = {
+          ...store,
+          ...parsed,
+          socialPosts: parsed.socialPosts || DEMO_SOCIAL_POSTS,
+          socialAgentConfig: {
+            ...DEFAULT_SOCIAL_AGENT_CONFIG,
+            ...(parsed.socialAgentConfig || {}),
+          },
+        };
       } else {
         saveStore();
       }
@@ -115,6 +138,167 @@ app.post('/api/church/store', (req: Request, res: Response) => {
     saveStore();
   }
   res.json({ success: true, store });
+});
+
+// ===================== SOCIAL MEDIA AI AGENT ROUTES =====================
+app.post('/api/social-agent/generate', async (req: Request, res: Response) => {
+  const {
+    prompt,
+    pillar = 'salvacao',
+    tone = 'inspirador_evangelistico',
+    platforms = ['facebook', 'instagram', 'tiktok'],
+    churchName = 'IEQ Vila Andreza',
+    pastorName = 'Pr. Geraldo Santos',
+    mediaCount = 1,
+    mediaTypes = ['photo'],
+  } = req.body || {};
+
+  const pillarDescriptions: Record<string, string> = {
+    salvacao: 'Jesus Cristo Salva (A Cruz - Vermelho Escarlate) · Lucas 19:10, João 3:16',
+    espirito_santo: 'Jesus Batiza com o Espírito Santo (A Pomba de Fogo - Amarelo Ouro) · Atos 1:8, Lucas 3:16',
+    cura_divina: 'Jesus Cura os Enfermos (O Cálice - Azul Celeste) · Isaías 53:4-5, Tiago 5:14',
+    segunda_vinda: 'Jesus Voltará como Rei que Há de Vir (A Coroa - Púrpura Real) · 1 Tessalonicenses 4:16-17',
+  };
+
+  const pillarBibleDefault: Record<string, string> = {
+    salvacao: 'João 3:16 — "Porque Deus amou o mundo de tal maneira..."',
+    espirito_santo: 'Atos 1:8 — "Mas recebereis a virtude do Espírito Santo..."',
+    cura_divina: 'Isaías 53:5 — "Pelas suas pisaduras fomos sarados."',
+    segunda_vinda: '1 Tessalonicenses 4:16 — "Porque o mesmo Senhor descerá do céu..."',
+  };
+
+  try {
+    // If Gemini API is available, generate rich structured copy
+    if (process.env.GEMINI_API_KEY) {
+      const systemInstruction = `Você é o Agente Inteligente de Mídias Sociais da Igreja do Evangelho Quadrangular (IEQ) - ${churchName}, liderada pelo ${pastorName}.
+Sua missão é criar postagens atrativas, fiéis à doutrina Quadrangular, inspiradoras e evangelísticas para Facebook, Instagram e TikTok a partir das fotos/vídeos e instruções fornecidas.
+Doutrina do post: ${pillarDescriptions[pillar] || pillarDescriptions.salvacao}.
+Tom: ${tone}.
+Quantidade de mídias enviadas: ${mediaCount} (${mediaTypes.join(', ')}).
+
+Gere APENAS um objeto JSON válido (sem tags markdown de código fora do JSON) com a seguinte estrutura:
+{
+  "title": "Título conciso do post",
+  "visualAnalysis": "Breve análise da foto/vídeo para redes sociais (1-2 frases)",
+  "suggestedHook": "Frase de impacto inicial para engajamento",
+  "bibleReference": "Versículo bíblico chave",
+  "content": {
+    "instagram": {
+      "caption": "Legenda completa formatada com emojis, quebras de linha e chamada de ação",
+      "hashtags": ["#tag1", "#tag2", "#tag3", "#tag4", "#tag5"],
+      "formatSuggestion": "Ex: Reels 9:16 ou Carrossel",
+      "bestTime": "Ex: 18:30 às 20:00"
+    },
+    "facebook": {
+      "postText": "Texto do post para página do Facebook",
+      "callToAction": "Chamada para ação no Facebook",
+      "hashtags": ["#tag1", "#tag2", "#tag3"],
+      "bestTime": "Ex: 10:00 ou 19:30"
+    },
+    "tiktok": {
+      "caption": "Legenda curta para o TikTok",
+      "videoScriptHook": "Roteiro dos primeiros 3 segundos para reter atenção no TikTok",
+      "soundSuggestion": "Sugestão de música/áudio gospel em alta",
+      "hashtags": ["#tag1", "#tag2", "#tag3", "#tag4"],
+      "bestTime": "Ex: 12:00 às 14:00"
+    }
+  }
+}`;
+
+      const userContent = prompt
+        ? `Crie os posts para o seguinte evento/mídia da igreja: ${prompt}`
+        : `Crie um post inspirador convidando a comunidade para o próximo culto da família na ${churchName}.`;
+
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: `${systemInstruction}\n\n${userContent}`,
+        config: {
+          responseMimeType: 'application/json',
+        },
+      });
+
+      const rawText = response.text || '';
+      try {
+        const parsed = JSON.parse(rawText);
+        return res.json({
+          success: true,
+          post: {
+            title: parsed.title || 'Post IEQ Vila Andreza',
+            contextPrompt: prompt || '',
+            tone,
+            pillar,
+            visualAnalysis: parsed.visualAnalysis || 'Mídia analisada com sucesso pelo Agente IA.',
+            suggestedHook: parsed.suggestedHook || 'Venha viver momentos de adoração conosco!',
+            bibleReference: parsed.bibleReference || pillarBibleDefault[pillar],
+            platforms,
+            content: parsed.content,
+            status: 'aguardando_aprovacao',
+          },
+        });
+      } catch (e) {
+        console.warn('Gemini response was not strict JSON, falling back:', rawText);
+      }
+    }
+  } catch (err: any) {
+    console.error('Error invoking Gemini for social agent:', err?.message || err);
+  }
+
+  // Graceful deterministic generator matching IEQ standards
+  const pBible = pillarBibleDefault[pillar] || 'Salmos 100:2';
+  return res.json({
+    success: true,
+    post: {
+      title: prompt ? String(prompt).slice(0, 48) : `Culto & Celebração — ${churchName}`,
+      contextPrompt: prompt || 'Mídia enviada para divulgação pastoral nas redes',
+      tone,
+      pillar,
+      visualAnalysis: `Foto/vídeo analisado pelo Agente IA da ${churchName}. Enquadramento excelente para Reels, Feed e TikTok com atmosfera acolhedora e adoração.`,
+      suggestedHook: `Uma noite que vai renovar a sua fé e abençoar a sua família! 🙌🔥`,
+      bibleReference: pBible,
+      platforms,
+      content: {
+        instagram: {
+          caption: `✨ Momentos inesquecíveis na presença do Senhor na ${churchName}!\n\n${prompt || 'Deus tem grandes planos para a sua vida e para toda a sua família. Venha adorar conosco e receber uma palavra de vida!'}\n\n📍 ${churchName}\n🎙️ ${pastorName}\n\nDeixe seu "AMÉM" nos comentários e compartilhe essa bênção com quem você ama! 👇`,
+          hashtags: ['#IEQVilaAndreza', '#Quadrangular', '#JesusCristo', '#Evangelho', '#VilaAndreza', '#Adoracao', '#Culto'],
+          formatSuggestion: 'Reels vertical 9:16 com áudio instrumental ou Carrossel de Fotos',
+          bestTime: '18:30 às 20:30',
+        },
+        facebook: {
+          postText: `A Paz do Senhor a todos os irmãos e amigos da ${churchName}! 🙌\n\n${prompt || 'Tivemos uma noite de profunda adoração e a presença de Deus foi real em nosso meio.'}\n\nVenha fazer parte da nossa família de fé! Todos são bem-vindos na casa do Pai.`,
+          callToAction: 'Confirme presença nos comentários e compartilhe em seu perfil!',
+          hashtags: ['#IEQVilaAndreza', '#EvangelhoQuadrangular', '#Familia'],
+          bestTime: '10:00 ou 19:00',
+        },
+        tiktok: {
+          caption: `Você já sentiu a presença de Deus transformar o seu dia? 🔥🙌 Vem adorar com a gente na ${churchName}! #IEQVilaAndreza #TikTokGospel #Worship`,
+          videoScriptHook: `[0-3s] "Deus mandou te dizer isto antes de você fechar este vídeo..." -> [3-10s] Mostrar a igreja cantando unida -> [Final] "Te esperamos neste culto na IEQ!"`,
+          soundSuggestion: 'Bondade de Deus (Instrumental ou Versão Acústica)',
+          hashtags: ['#IEQVilaAndreza', '#GospelBrasil', '#CristaosNoTikTok', '#JesusTeAma'],
+          bestTime: '12:00 às 14:00',
+        },
+      },
+      status: 'aguardando_aprovacao',
+    },
+  });
+});
+
+app.post('/api/social-agent/publish', async (req: Request, res: Response) => {
+  const { postId, platforms = ['facebook', 'instagram', 'tiktok'] } = req.body || {};
+
+  // Mock social networks dispatch with instant receipts
+  const receipts = platforms.map((plat: string) => ({
+    platform: plat,
+    status: 'published',
+    publishedId: `pub-${plat}-${Date.now()}`,
+    timestamp: new Date().toISOString(),
+  }));
+
+  return res.json({
+    success: true,
+    postId,
+    receipts,
+    message: `Post publicado com sucesso no ${platforms.join(', ')}!`,
+  });
 });
 
 // ===================== SUPABASE SQL MIGRATIONS & SCHEMA GENERATOR =====================
@@ -196,7 +380,6 @@ app.post('/api/github/push', async (req: Request, res: Response) => {
   };
 
   try {
-    // 1. Get latest commit SHA of target branch (or initialize repository if it is brand new / empty)
     let latestCommitSha = '';
     const refRes = await fetch(`https://api.github.com/repos/${cleanRepo}/git/ref/heads/${branch}`, { headers });
 
@@ -204,7 +387,6 @@ app.post('/api/github/push', async (req: Request, res: Response) => {
       const refData = (await refRes.json()) as { object: { sha: string } };
       latestCommitSha = refData.object.sha;
     } else {
-      // Repository might be completely empty (409 Conflict: Git Repository is empty) or branch doesn't exist yet
       const initContent = Buffer.from(
         '# IEQ VILA ANDREZA — Sistema de Gestão Eclesiástica\nInicializando repositório...\n',
         'utf-8'
@@ -245,12 +427,11 @@ app.post('/api/github/push', async (req: Request, res: Response) => {
       }
     }
 
-    // 2. Collect all project files and create tree
     const files = getProjectFiles(__dirname);
     const tree = files.map((file) => ({
       path: file.path,
-      mode: '100644',
-      type: 'blob',
+      mode: '100644' as const,
+      type: 'blob' as const,
       content: file.content,
     }));
 
@@ -258,6 +439,7 @@ app.post('/api/github/push', async (req: Request, res: Response) => {
       method: 'POST',
       headers,
       body: JSON.stringify({
+        base_tree: latestCommitSha || undefined,
         tree,
       }),
     });
@@ -266,34 +448,36 @@ app.post('/api/github/push', async (req: Request, res: Response) => {
       const errText = await createTreeRes.text();
       return res.status(createTreeRes.status).json({
         success: false,
-        message: `Erro ao criar árvore de arquivos no GitHub: ${errText}`,
+        message: `Erro ao criar a árvore de arquivos no GitHub: ${errText}`,
       });
     }
 
     const treeData = (await createTreeRes.json()) as { sha: string };
 
-    // 3. Create Commit
-    const createCommitRes = await fetch(`https://api.github.com/repos/${cleanRepo}/git/commits`, {
+    const commitMsg =
+      commitMessage ||
+      `chore: Atualização do sistema IEQ VILA ANDREZA (${new Date().toLocaleString('pt-BR')})`;
+
+    const commitRes = await fetch(`https://api.github.com/repos/${cleanRepo}/git/commits`, {
       method: 'POST',
       headers,
       body: JSON.stringify({
-        message: commitMessage || 'Atualização completa: Sistema IEQ VILA ANDREZA (Igreja do Evangelho Quadrangular)',
+        message: commitMsg,
         tree: treeData.sha,
-        parents: [latestCommitSha],
+        parents: latestCommitSha ? [latestCommitSha] : [],
       }),
     });
 
-    if (!createCommitRes.ok) {
-      const errText = await createCommitRes.text();
-      return res.status(createCommitRes.status).json({
+    if (!commitRes.ok) {
+      const errText = await commitRes.text();
+      return res.status(commitRes.status).json({
         success: false,
-        message: `Erro ao criar commit no GitHub: ${errText}`,
+        message: `Erro ao criar o commit no GitHub: ${errText}`,
       });
     }
 
-    const commitData = (await createCommitRes.json()) as { sha: string; html_url?: string };
+    const commitData = (await commitRes.json()) as { sha: string };
 
-    // 4. Update Branch Reference
     const updateRefRes = await fetch(`https://api.github.com/repos/${cleanRepo}/git/refs/heads/${branch}`, {
       method: 'PATCH',
       headers,

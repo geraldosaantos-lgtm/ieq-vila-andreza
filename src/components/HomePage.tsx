@@ -235,21 +235,21 @@ export const HomePage: React.FC<HomePageProps> = ({
             <button
               type="button"
               onClick={() => onNavigateTab('agenda')}
-              className={`px-5 py-3.5 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2.5 cursor-pointer whitespace-nowrap shrink-0 ${
+              className={`px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-lg font-bold text-xs sm:text-sm transition-all duration-150 active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap shrink-0 ${
                 hasNewAgenda
-                  ? 'bg-amber-400 hover:bg-amber-300 text-slate-950 ring-2 ring-red-600 shadow-md'
-                  : 'bg-slate-900 hover:bg-slate-800 text-white'
+                  ? 'bg-amber-400 hover:bg-amber-300 text-slate-950 ring-2 ring-red-600 shadow-xs'
+                  : 'bg-slate-900 hover:bg-slate-800 text-white shadow-2xs'
               }`}
             >
-              <Calendar className={`w-5 h-5 ${hasNewAgenda ? 'text-red-700' : 'text-amber-400'}`} />
+              <Calendar className={`w-4 h-4 ${hasNewAgenda ? 'text-red-700' : 'text-amber-400'}`} />
               <span>
                 {hasNewAgenda
-                  ? `Agenda da Igreja (${unviewedAgendaCount} Novidade${unviewedAgendaCount > 1 ? 's' : ''}!)`
+                  ? `Agenda (${unviewedAgendaCount} Novidade${unviewedAgendaCount > 1 ? 's' : ''}!)`
                   : 'Abrir Agenda da Igreja'}
               </span>
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-3.5 h-3.5" />
             </button>
-            <span className="text-xs text-slate-500 text-center lg:text-right">
+            <span className="text-[11px] sm:text-xs text-slate-500 text-center lg:text-right">
               {hasNewAgenda
                 ? 'Cor em destaque: há novos avisos/cultos ainda não visualizados!'
                 : 'Você já visualizou todas as novidades da agenda.'}
@@ -282,7 +282,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                     openBibleReaderAndScroll('temas');
                   }
                 }}
-                className={`px-3.5 py-2 text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0 ${
+                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all duration-150 active:scale-[0.98] flex items-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0 ${
                   showBibleReader
                     ? 'bg-slate-900 text-white'
                     : 'text-white bg-sky-700 hover:bg-sky-800 shadow-2xs'
@@ -350,8 +350,8 @@ export const HomePage: React.FC<HomePageProps> = ({
           </div>
 
           {/* Barra de ações do Versículo */}
-          <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-100">
-            <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-2.5 pt-2 border-t border-slate-100">
+            <div className="flex flex-wrap items-center gap-1.5">
               <button
                 type="button"
                 onClick={() => {
@@ -360,24 +360,24 @@ export const HomePage: React.FC<HomePageProps> = ({
                   setSelectedPassage(next);
                   setShowFullChapterInline(true);
                 }}
-                className="px-3.5 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors cursor-pointer whitespace-nowrap"
+                className="px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-all duration-150 active:scale-[0.98] cursor-pointer whitespace-nowrap"
               >
                 Próximo Texto Bíblico
               </button>
               <button
                 type="button"
                 onClick={() => openBibleReaderAndScroll('livros')}
-                className="px-3.5 py-2 text-xs font-semibold text-sky-800 bg-sky-50 hover:bg-sky-100 border border-sky-200 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+                className="px-3 py-1.5 text-xs font-semibold text-sky-800 bg-sky-50 hover:bg-sky-100 border border-sky-200 rounded-lg transition-all duration-150 active:scale-[0.98] flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
               >
                 <BookMarked className="w-3.5 h-3.5" />
-                <span>Abrir Bíblia Completa (Livros & Capítulos)</span>
+                <span>Bíblia (66 Livros & Capítulos)</span>
               </button>
             </div>
 
             <button
               type="button"
               onClick={() => handleShareVerseWhatsApp(selectedPassage)}
-              className="px-3.5 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+              className="px-3 py-1.5 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-all duration-150 active:scale-[0.98] flex items-center gap-1.5 cursor-pointer whitespace-nowrap shadow-2xs"
             >
               <Share2 className="w-3.5 h-3.5" />
               <span>Enviar no WhatsApp</span>

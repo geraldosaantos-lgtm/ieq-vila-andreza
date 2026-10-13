@@ -22,6 +22,8 @@ import {
   DEMO_LEADERSHIP,
   DEMO_VISITORS,
   DEMO_SERVICE_RECORDS,
+  DEFAULT_SOCIAL_AGENT_CONFIG,
+  DEMO_SOCIAL_POSTS,
 } from './initialData';
 import { getSupabase } from './supabase';
 
@@ -40,6 +42,8 @@ const DEFAULT_STORE: ChurchStoreData = {
   leadership: DEMO_LEADERSHIP,
   visitors: DEMO_VISITORS,
   serviceRecords: DEMO_SERVICE_RECORDS,
+  socialPosts: DEMO_SOCIAL_POSTS,
+  socialAgentConfig: DEFAULT_SOCIAL_AGENT_CONFIG,
 };
 
 export function getLocalStore(): ChurchStoreData {
@@ -55,6 +59,11 @@ export function getLocalStore(): ChurchStoreData {
       ...DEFAULT_STORE,
       ...parsed,
       church: { ...DEFAULT_CHURCH_SETTINGS, ...(parsed.church || {}) },
+      socialPosts: parsed.socialPosts || DEMO_SOCIAL_POSTS,
+      socialAgentConfig: {
+        ...DEFAULT_SOCIAL_AGENT_CONFIG,
+        ...(parsed.socialAgentConfig || {}),
+      },
     };
   } catch {
     return DEFAULT_STORE;
@@ -315,6 +324,8 @@ export async function resetAllTestData(): Promise<ChurchStoreData> {
     leadership: [],
     visitors: [],
     serviceRecords: [],
+    socialPosts: [],
+    socialAgentConfig: current.socialAgentConfig || DEFAULT_SOCIAL_AGENT_CONFIG,
     supabaseConfig: current.supabaseConfig,
   };
   await syncWithServer(cleanStore);
@@ -376,7 +387,7 @@ export async function seedDemoDataToSupabase(): Promise<{ success: boolean; mess
         store.leadership.map((l) => ({
           nome: l.name,
           cargo: l.roleTitle,
-          ministerio: l.ministry,
+          ministerio: (l as any).department || (l as any).ministry || 'Geral',
           telefone: l.phone,
           endereco: l.address,
           desde: l.since || null,
@@ -409,7 +420,7 @@ export async function seedDemoDataToSupabase(): Promise<{ success: boolean; mess
           total_presentes: s.totalAttendance,
           membros_presentes: s.membersCount,
           visitantes_presentes: s.visitorsCount,
-          decisoes_conversoes: s.decisionsCount,
+          decisoes_conversoes: (s as any).decisionsCount || 0,
           pregador: s.preacher || null,
           observacoes: s.notes || null,
         }))

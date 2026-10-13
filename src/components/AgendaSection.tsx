@@ -100,18 +100,18 @@ export const AgendaSection: React.FC<AgendaSectionProps> = ({
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
           {unviewedEvents.length > 0 ? (
             <button
               type="button"
               onClick={onMarkAllViewed}
-              className="px-3.5 py-2 text-xs font-bold text-slate-950 bg-amber-400 hover:bg-amber-300 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+              className="px-3 py-1.5 text-xs font-bold text-slate-950 bg-amber-400 hover:bg-amber-300 rounded-lg transition-all duration-150 active:scale-[0.98] shadow-2xs flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
             >
-              <CheckCircle2 className="w-4 h-4 text-red-700" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-red-700" />
               <span>Confirmar Leitura ({unviewedEvents.length} Novidade{unviewedEvents.length > 1 ? 's' : ''})</span>
             </button>
           ) : (
-            <span className="text-xs font-medium text-emerald-700 flex items-center gap-1 px-3 py-2 bg-emerald-50 rounded-lg">
+            <span className="text-xs font-medium text-emerald-700 flex items-center gap-1 px-2.5 py-1.5 bg-emerald-50 rounded-lg">
               <CheckCircle2 className="w-3.5 h-3.5" />
               <span>Todas as novidades visualizadas</span>
             </span>
@@ -120,9 +120,9 @@ export const AgendaSection: React.FC<AgendaSectionProps> = ({
           <button
             type="button"
             onClick={() => setShowAddForm(!showAddForm)}
-            className="px-4 py-2 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+            className="px-3 py-1.5 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-lg transition-all duration-150 active:scale-[0.98] shadow-2xs flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-3.5 h-3.5" />
             <span>{showAddForm ? 'Fechar Formulário' : 'Nova Programação / Aviso'}</span>
           </button>
         </div>

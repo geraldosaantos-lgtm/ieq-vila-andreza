@@ -9,6 +9,8 @@ import type {
   LeadershipMember,
   ChurchVisitor,
   ServiceAttendanceRecord,
+  SocialAgentConfig,
+  SocialPostItem,
 } from '../types';
 
 export const DEFAULT_CHURCH_SETTINGS: ChurchSettings = {
@@ -637,3 +639,198 @@ export const DEMO_SERVICE_RECORDS: ServiceAttendanceRecord[] = [
     createdAt: '2026-10-07',
   },
 ];
+
+export const DEFAULT_SOCIAL_AGENT_CONFIG: SocialAgentConfig = {
+  agentName: 'Agente Mídia Quadrangular IA',
+  autoPublishApproved: true,
+  defaultTone: 'inspirador_evangelistico',
+  connectedAccounts: {
+    facebook: {
+      pageName: 'IEQ Vila Andreza Oficial',
+      handle: 'fb.com/ieqvilaandreza',
+      connected: true,
+      autoPost: true,
+    },
+    instagram: {
+      handle: '@ieqvilaandreza',
+      connected: true,
+      autoPost: true,
+    },
+    tiktok: {
+      handle: '@ieqvilaandreza',
+      connected: true,
+      autoPost: true,
+    },
+  },
+  predefinedSchedule: [
+    {
+      id: 'slot-seg-09',
+      dayOfWeek: 'Segunda-feira',
+      time: '09:00',
+      label: 'Devocional da Semana & Palavra Pastoral',
+      platforms: ['instagram', 'facebook'],
+      active: true,
+    },
+    {
+      id: 'slot-qua-17',
+      dayOfWeek: 'Quarta-feira',
+      time: '17:00',
+      label: 'Convite Oficial: Quarta da Cura Divina (19h30)',
+      platforms: ['instagram', 'facebook', 'tiktok'],
+      active: true,
+    },
+    {
+      id: 'slot-sex-18',
+      dayOfWeek: 'Sexta-feira',
+      time: '18:30',
+      label: 'Bastidores & Ensaio do Ministério de Louvor (Reels/TikTok)',
+      platforms: ['instagram', 'tiktok'],
+      active: true,
+    },
+    {
+      id: 'slot-dom-10',
+      dayOfWeek: 'Domingo',
+      time: '10:00',
+      label: 'Contagem Regressiva: Culto da Família & Celebração',
+      platforms: ['instagram', 'facebook', 'tiktok'],
+      active: true,
+    },
+    {
+      id: 'slot-dom-21',
+      dayOfWeek: 'Domingo',
+      time: '21:15',
+      label: 'Melhores Momentos do Culto de Domingo',
+      platforms: ['instagram', 'facebook', 'tiktok'],
+      active: true,
+    },
+  ],
+};
+
+export const DEMO_SOCIAL_POSTS: SocialPostItem[] = [
+  {
+    id: 'post-demo-1',
+    title: 'Convite Especial — Culto da Família & Santa Ceia',
+    contextPrompt: 'Fotos do altar preparado e equipe de louvor convidando as famílias da Vila Andreza para o Culto de Domingo às 18h30.',
+    tone: 'inspirador_evangelistico',
+    pillar: 'salvacao',
+    media: [
+      {
+        id: 'med-1',
+        type: 'photo',
+        url: 'https://images.unsplash.com/photo-1438232992991-995b7058bbb3?auto=format&fit=crop&w=1000&q=80',
+        fileName: 'culto_familia_altar_ieq.jpg',
+        fileSizeLabel: '1.4 MB',
+        mimeType: 'image/jpeg',
+      },
+    ],
+    visualAnalysis:
+      'Imagem com iluminação acolhedora destacando comunhão e adoração no templo. Excelente apelo visual para convite familiar no Feed, Reels e TikTok.',
+    suggestedHook: 'Neste Domingo às 18h30: Um lugar de Paz, Milagres e Comunhão para sua Família na IEQ Vila Andreza!',
+    bibleReference: 'Hebreus 13:8 — "Jesus Cristo é o mesmo, ontem, e hoje, e eternamente."',
+    platforms: ['facebook', 'instagram', 'tiktok'],
+    content: {
+      instagram: {
+        caption:
+          '✨ Neste Domingo às 18h30 esperamos você e toda a sua família na IEQ Vila Andreza!\n\nSerá uma noite especial de adoração, comunhão na mesa do Senhor e uma Palavra viva que vai fortalecer o seu lar. Traga um convidado especial!\n\n📍 Rua Principal, Vila Andreza\n🕡 Domingo às 18h30\n🎙️ Pr. Geraldo Santos',
+        hashtags: [
+          '#IEQVilaAndreza',
+          '#IgrejaDoEvangelhoQuadrangular',
+          '#CultoDaFamilia',
+          '#VilaAndreza',
+          '#JesusCristoSalva',
+          '#Adoracao',
+        ],
+        formatSuggestion: 'Carrossel / Reels com música instrumental suave',
+        bestTime: 'Domingo às 10:00',
+        status: 'agendado',
+      },
+      facebook: {
+        postText:
+          'Paz seja convosco, amados irmãos e amigos da Vila Andreza! 🙌\n\nNeste domingo, às 18h30, teremos nosso Culto da Família na IEQ Vila Andreza. Preparamos cada detalhe com muito amor para receber você e sua casa. Venha buscar a presença de Deus conosco!',
+        callToAction: 'Confirme presença nos comentários e compartilhe com sua família!',
+        hashtags: ['#IEQVilaAndreza', '#EvangelhoQuadrangular', '#CultoDeDomingo'],
+        bestTime: 'Domingo às 10:00',
+        status: 'agendado',
+      },
+      tiktok: {
+        caption:
+          'Você já tem um encontro marcado neste domingo às 18h30 na IEQ Vila Andreza! 🔥🙌 #IEQVilaAndreza #GospelTikTok #CultoDaFamilia #IgrejaQuadrangular',
+        videoScriptHook:
+          '[0-3s] Texto na tela: "Procurando uma resposta de Deus para sua semana?" -> [3-10s] Mostrar o louvor e a igreja reunida -> [Final] "Esperamos você hoje às 18h30 na IEQ Vila Andreza!"',
+        soundSuggestion: 'Bondade de Deus (Instrumental / Coral Ao Vivo)',
+        hashtags: ['#IEQVilaAndreza', '#LouvorGospel', '#CristaosNoTikTok', '#VilaAndreza'],
+        bestTime: 'Domingo às 10:00',
+        status: 'agendado',
+      },
+    },
+    status: 'aprovado_agendado',
+    scheduledSlotLabel: 'Domingo · 10:00 (Contagem Regressiva: Culto da Família)',
+    scheduledFor: '2026-10-18T10:00',
+    recurrenceRule: 'semanal',
+    approvedBy: 'Pr. Geraldo Santos',
+    approvedAt: '2026-10-11T08:30:00Z',
+    createdAt: '2026-10-11T08:15:00Z',
+  },
+  {
+    id: 'post-demo-2',
+    title: 'Bastidores do Ensaio — Grupo de Louvor IEQ Vila Andreza',
+    contextPrompt: 'Vídeo curto do ensaio de sábado do Ministério de Louvor preparando as canções de adoração para o culto.',
+    tone: 'jovem_dinamico',
+    pillar: 'espirito_santo',
+    media: [
+      {
+        id: 'med-2',
+        type: 'photo',
+        url: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1000&q=80',
+        fileName: 'ensaio_louvor_sabado.jpg',
+        fileSizeLabel: '2.1 MB',
+        mimeType: 'image/jpeg',
+      },
+    ],
+    visualAnalysis:
+      'Cena dinâmica com microfones e instrumentos musicais em preparação para o culto. Gera alta retenção nos primeiros 3 segundos no TikTok e Instagram Reels.',
+    suggestedHook: 'Quando o Ministério de Louvor se reúne em oração e preparação... O ambiente já muda! 🎶🔥',
+    bibleReference: 'Salmos 150:6 — "Tudo quanto tem fôlego louve ao Senhor. Louvai ao Senhor!"',
+    platforms: ['facebook', 'instagram', 'tiktok'],
+    content: {
+      instagram: {
+        caption:
+          '🎶🔥 Um pouco da nossa preparação no ensaio do Ministério de Louvor da IEQ Vila Andreza!\n\nCada nota, cada acorde e cada voz dedicada para exaltar o nome de Jesus. Qual louvor não pode faltar no nosso próximo culto? Comente aqui embaixo! 👇✨',
+        hashtags: [
+          '#MinisterioDeLouvor',
+          '#IEQVilaAndreza',
+          '#LouvorEAdoracao',
+          '#EnsaioGospel',
+          '#Quadrangular',
+        ],
+        formatSuggestion: 'Reels 9:16 com corte dinâmico',
+        bestTime: 'Sexta-feira às 18:30',
+        status: 'pendente',
+      },
+      facebook: {
+        postText:
+          'Nosso Ministério de Louvor já está em preparação para os próximos cultos na IEQ Vila Andreza! Louvamos a Deus pela vida de cada músico e cantor dedicado à obra do Senhor. Qual é o seu hino favorito?',
+        callToAction: 'Deixe seu pedido de louvor nos comentários!',
+        hashtags: ['#LouvorIEQ', '#IEQVilaAndreza', '#Adoracao'],
+        bestTime: 'Sexta-feira às 18:30',
+        status: 'pendente',
+      },
+      tiktok: {
+        caption:
+          'Preparando o som do céu aqui na IEQ Vila Andreza! 🎸🥁🎤 Qual música você quer ouvir no culto de domingo? #EnsaioDeLouvor #MusicosDaIgreja #IEQVilaAndreza #TikTokCristao',
+        videoScriptHook:
+          '[0-2s] Close nos instrumentos tocando o refrão -> [2-8s] Banda cantando unida -> [Final] Legenda: "Venha adorar conosco neste domingo às 18h30!"',
+        soundSuggestion: 'Áudio original do ensaio + ambiência ao vivo',
+        hashtags: ['#EnsaioLouvor', '#MusicosCristaos', '#IEQVilaAndreza', '#WorshipBrasil'],
+        bestTime: 'Sexta-feira às 18:30',
+        status: 'pendente',
+      },
+    },
+    status: 'aguardando_aprovacao',
+    scheduledSlotLabel: 'Sexta-feira · 18:30 (Bastidores & Ensaio do Louvor)',
+    scheduledFor: '2026-10-16T18:30',
+    recurrenceRule: 'unico',
+    createdAt: '2026-10-11T08:45:00Z',
+  },
+];
+

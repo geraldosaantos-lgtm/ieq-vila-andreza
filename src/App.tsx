@@ -10,6 +10,8 @@ import type {
   LeadershipMember,
   ChurchVisitor,
   ServiceAttendanceRecord,
+  SocialPostItem,
+  SocialAgentConfig,
 } from './types';
 import {
   fetchChurchStore,
@@ -19,14 +21,24 @@ import {
   resetAllTestData,
   loadDemoData,
 } from './lib/dataService';
+import { DEFAULT_SOCIAL_AGENT_CONFIG } from './lib/initialData';
 import { Header, ActiveTab } from './components/Header';
 import { HomePage } from './components/HomePage';
 import { AgendaSection } from './components/AgendaSection';
 import { WorshipMinistry } from './components/WorshipMinistry';
 import { MembersAndLeadership } from './components/MembersAndLeadership';
 import { PastorDashboard } from './components/PastorDashboard';
+import { SocialAgentSection } from './components/SocialAgentSection';
 import { CompanySettingsModal } from './components/CompanySettingsModal';
 import { IEQFourColorBar } from './components/IEQLogo';
+import {
+  Home,
+  Calendar,
+  Music,
+  Users,
+  Shield,
+  Sparkles,
+} from 'lucide-react';
 
 export function App() {
   const [store, setStore] = useState<ChurchStoreData | null>(null);
@@ -42,12 +54,12 @@ export function App() {
 
   if (!store) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+      <div className="min-h-screen bg-stone-50 flex items-center justify-center p-6">
         <div className="text-center space-y-2">
-          <div className="text-sm font-bold text-slate-800">
+          <div className="text-sm font-bold text-stone-800">
             Carregando Sistema IEQ VILA ANDREZA...
           </div>
-          <div className="text-xs text-slate-500">
+          <div className="text-xs text-stone-500">
             Igreja do Evangelho Quadrangular
           </div>
         </div>
@@ -106,8 +118,6 @@ export function App() {
       id: `ag-${Date.now()}`,
       createdAt: new Date().toISOString(),
     };
-    // Ao criar um novo evento na agenda, ele NÃO está em viewedAgendaIds,
-    // fazendo o botão Agenda mudar de cor imediatamente até o membro visualizar!
     updateStore({
       ...store,
       agenda: [newEvent, ...store.agenda],
@@ -249,8 +259,23 @@ export function App() {
     });
   };
 
+  // --- Social Media Agent Handlers ---
+  const handleUpdateSocialPosts = (posts: SocialPostItem[]) => {
+    updateStore({
+      ...store,
+      socialPosts: posts,
+    });
+  };
+
+  const handleUpdateSocialConfig = (cfg: SocialAgentConfig) => {
+    updateStore({
+      ...store,
+      socialAgentConfig: cfg,
+    });
+  };
+
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
+    <div className="min-h-screen flex flex-col bg-stone-50/70 text-stone-900 font-sans selection:bg-red-100 selection:text-red-900">
       <Header
         churchSettings={store.church}
         activeTab={activeTab}
@@ -259,7 +284,8 @@ export function App() {
         onOpenChurchSettings={() => setIsSettingsModalOpen(true)}
       />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-8">
+      {/* Main Content Area - Responsive for Mobile & Notebook */}
+      <main className="flex-1 max-w-[1440px] w-full mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-7 pb-24 md:pb-10">
         {activeTab === 'home' && (
           <HomePage
             churchSettings={store.church}
@@ -325,25 +351,109 @@ export function App() {
             onDeleteServiceRecord={handleDeleteServiceRecord}
           />
         )}
+
+        {activeTab === 'post' && (
+          <SocialAgentSection
+            posts={store.socialPosts || []}
+            config={store.socialAgentConfig || DEFAULT_SOCIAL_AGENT_CONFIG}
+            churchName={store.church.name || 'IEQ Vila Andreza'}
+            pastorName={store.church.pastorName || 'Pr. Geraldo Santos'}
+            onUpdatePosts={handleUpdateSocialPosts}
+            onUpdateConfig={handleUpdateSocialConfig}
+          />
+        )}
       </main>
 
-      <footer className="bg-white border-t border-slate-200 mt-12">
-        <IEQFourColorBar className="h-1 w-full" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+      {/* FOOTER */}
+      <footer className="bg-white border-t border-stone-200 mt-auto">
+        <IEQFourColorBar className="h-1.5 w-full" />
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-stone-500">
           <div>
-            <strong className="text-slate-800">{store.church.name}</strong> · {store.church.subtitle}
+            <strong className="text-stone-800">{store.church.name}</strong> · {store.church.subtitle}
           </div>
           <div className="flex items-center gap-4">
             <button
               type="button"
               onClick={() => setIsSettingsModalOpen(true)}
-              className="hover:text-slate-900 underline cursor-pointer"
+              className="text-stone-600 hover:text-stone-900 underline cursor-pointer text-xs"
             >
               Configurar Igreja & Dados
             </button>
           </div>
         </div>
       </footer>
+
+      {/* MOBILE BOTTOM NAVIGATION BAR (Smartphones) - Ultra-convenient one-thumb navigation */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-stone-200/90 px-1.5 py-1 flex items-center justify-around shadow-lg">
+        <button
+          type="button"
+          onClick={() => handleSelectTab('home')}
+          className={`flex flex-col items-center justify-center p-1 rounded-lg text-[10px] font-semibold cursor-pointer transition-colors ${
+            activeTab === 'home' ? 'text-stone-950 font-bold' : 'text-stone-500'
+          }`}
+        >
+          <Home className={`w-4 h-4 ${activeTab === 'home' ? 'text-stone-950' : 'text-stone-400'}`} />
+          <span>Início</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => handleSelectTab('agenda')}
+          className={`relative flex flex-col items-center justify-center p-1 rounded-lg text-[10px] font-semibold cursor-pointer transition-colors ${
+            activeTab === 'agenda' ? 'text-amber-700 font-bold' : 'text-stone-500'
+          }`}
+        >
+          <Calendar className={`w-4 h-4 ${activeTab === 'agenda' ? 'text-amber-600' : 'text-stone-400'}`} />
+          <span>Agenda</span>
+          {unviewedAgendaCount > 0 && (
+            <span className="absolute top-0 right-1 w-2 h-2 rounded-full bg-red-600 ring-1 ring-white" />
+          )}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => handleSelectTab('worship')}
+          className={`flex flex-col items-center justify-center p-1 rounded-lg text-[10px] font-semibold cursor-pointer transition-colors ${
+            activeTab === 'worship' ? 'text-sky-700 font-bold' : 'text-stone-500'
+          }`}
+        >
+          <Music className={`w-4 h-4 ${activeTab === 'worship' ? 'text-sky-600' : 'text-stone-400'}`} />
+          <span>Louvor</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => handleSelectTab('members')}
+          className={`flex flex-col items-center justify-center p-1 rounded-lg text-[10px] font-semibold cursor-pointer transition-colors ${
+            activeTab === 'members' ? 'text-purple-700 font-bold' : 'text-stone-500'
+          }`}
+        >
+          <Users className={`w-4 h-4 ${activeTab === 'members' ? 'text-purple-700' : 'text-stone-400'}`} />
+          <span>Membros</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => handleSelectTab('pastor')}
+          className={`flex flex-col items-center justify-center p-1 rounded-lg text-[10px] font-semibold cursor-pointer transition-colors ${
+            activeTab === 'pastor' ? 'text-red-700 font-bold' : 'text-stone-500'
+          }`}
+        >
+          <Shield className={`w-4 h-4 ${activeTab === 'pastor' ? 'text-red-700' : 'text-stone-400'}`} />
+          <span>Pastor</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => handleSelectTab('post')}
+          className={`flex flex-col items-center justify-center p-1 rounded-lg text-[10px] font-semibold cursor-pointer transition-colors ${
+            activeTab === 'post' ? 'text-purple-900 font-bold' : 'text-stone-500'
+          }`}
+        >
+          <Sparkles className={`w-4 h-4 ${activeTab === 'post' ? 'text-purple-600' : 'text-stone-400'}`} />
+          <span className="text-[10px]">Post IA</span>
+        </button>
+      </nav>
 
       <CompanySettingsModal
         isOpen={isSettingsModalOpen}
